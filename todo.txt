@@ -1,0 +1,31 @@
+TODO FILE
+
+NEXT RELEASE
+to get a working release
+
+-organize functions
+-add comments explaining code
+-improve math
+-stop dividing by 0
+-fix db errors
+
+FUTURE RELEASES
+-improve admin markup
+-improve display
+-add more stats
+-widgets/shortcode of information
+-email stats as different intervals
+
+
+List of functions to help me keep track of this 
+
+bp_system_report_pseudo_cron()
+bp_system_report_admin_add()
+bp_system_report_css()
+bp_system_report_schedule()
+bp_system_report_admin_screen()
+bp_system_report( $date )
+record() - should probably rename
+bp_system_report_compare( $a, $b ) parameters could use cleaer names
+bp_system_report_percentage( $n )
+bp_system_report_format_date( $timestamp )

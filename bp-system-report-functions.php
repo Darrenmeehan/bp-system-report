@@ -1,6 +1,5 @@
 <?php 
 
-
 function bp_system_report_pseudo_cron() {
 	$cool = new BP_System_Report( time() ); 
 	$cool->record();
@@ -72,7 +71,7 @@ function bp_system_report_admin_screen() {
 	<div class="wrap">
 	    <h2><?php _e( 'System Report', 'bp-system-report' ) ?></h2>
 	
-		<form action="admin.php?page=bp-system-report/bp-system-report-bp-functions.php" method="post">
+		<form action="admin.php?page=bp-system-report/bp-system-report-functions.php" method="post">
 			Compare
 			<select name="bpsr_b">
 				<?php foreach( $report_dates as $date ) : ?>
@@ -347,23 +346,9 @@ function bp_system_report_admin_screen() {
 			</tr>
 			
 		</thead>
-		
-		
-		
-		
+
 		</table>
-		
-		
-		
-		
-		<pre>
-		<?php $cool = new BP_System_Report; 
-			/*if ( $cool->record() )
-				echo "Dope"; */
-		
-		?>
-		<?php /* print_r($cool); */   ?>
-		</pre>
+
 	</div>
 	<?php
 }

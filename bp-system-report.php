@@ -30,7 +30,7 @@ function bp_system_report_deactivation() {
 
 /* Only load the BuddyPress plugin functions if BuddyPress is loaded and initialized. */
 function bp_system_report_init() {
-	require( dirname( __FILE__ ) . '/bp-system-report-bp-functions.php' );
+	require( dirname( __FILE__ ) . '/bp-system-report-functions.php' );
 }
 add_action( 'bp_init', 'bp_system_report_init' );
 
