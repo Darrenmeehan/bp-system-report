@@ -9,8 +9,8 @@ add_action( 'bp_system_report_pseudo_cron_hook', 'bp_system_report_pseudo_cron' 
 
 
 function bp_system_report_admin_add() {
-	$plugin_page = add_menu_page( __('System Report','bp-system-report'), __('System Report','bp-system-report'), 'manage_options', __FILE__, 'bp_system_report_admin_screen' );
-	add_action('admin_print_styles-' . $plugin_page, 'bp_system_report_css');
+	add_submenu_page( 'options-general.php',__('System Report','bp-system-report'), __('System Report','bp-system-report'), 'manage_options', __FILE__, 'bp_system_report_admin_screen' ); 
+	add_action('admin_print_styles-','bp_system_report_css');
 }
 add_action( 'admin_menu', 'bp_system_report_admin_add', 70 );
 
