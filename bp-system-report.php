@@ -28,7 +28,6 @@ function bp_system_report_deactivation() {
 }
 
 
-
 /* Only load the BuddyPress plugin functions if BuddyPress is loaded and initialized. */
 function bp_system_report_init() {
 	require( dirname( __FILE__ ) . '/bp-system-report-bp-functions.php' );
@@ -49,5 +48,3 @@ function bp_system_report_locale_init () {
       		load_textdomain( 'bp-system-report', $mofile );
 }
 add_action ('plugins_loaded', 'bp_system_report_locale_init');
-
-?>

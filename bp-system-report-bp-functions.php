@@ -36,19 +36,6 @@ $crons = _get_cron_array();
 }
 //add_action( 'wp_head', 'bp_system_report_schedule' );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function bp_system_report_admin_screen() {
 	global $wpdb;
 	
@@ -57,7 +44,7 @@ function bp_system_report_admin_screen() {
 	
 	$report_dates = array_reverse($report_dates);
 	
-	if ( !$a = $_POST['bpsr_a'] ) {
+	if ( !$a = isset($_POST['bpsr_a']) && $_POST['bpsr_a'] ) {
 		$a = time();
 		$a_data = new BP_System_Report( $a );
 	} else {
@@ -66,7 +53,7 @@ function bp_system_report_admin_screen() {
 			$a_data = "Error";
 	}
 	
-	if ( !$b = $_POST['bpsr_b'] ) {
+	if ( !$b = isset($_POST['bpsr_b']) && $_POST['bpsr_b'] ) {
 		$b = $report_dates[0];
 	}
 	
@@ -83,7 +70,7 @@ function bp_system_report_admin_screen() {
 	?>
 
 	<div class="wrap">
-	    <h2><?php _e( 'System Report', 'bp-group-management' ) ?></h2>
+	    <h2><?php _e( 'System Report', 'bp-system-report' ) ?></h2>
 	
 		<form action="admin.php?page=bp-system-report/bp-system-report-bp-functions.php" method="post">
 			Compare
@@ -384,16 +371,17 @@ function bp_system_report_admin_screen() {
 class BP_System_Report {
 	var $members;
 	var $groups;
-	var $blogs;
-	
+	var $blogs;	
 	var $date;
 
 	function bp_system_report( $date ) {
+	
 		if ( !$report_dates = get_option( 'bp_system_report_log' ) )
 			$last_report = time();
 		else
 			$last_report = array_pop( $report_dates );
 		
+		$counter = 0;
 				
 		/* Members */
 		$members_array = bp_core_get_users( array( 'per_page' => 10000 ) );
@@ -422,7 +410,7 @@ class BP_System_Report {
 		$m['average_friendships'] = $friends_counter/$m['total'];
 		$m['percent_active'] = bp_system_report_percentage($counter/$m['total']);
 				
-		$this->members = $m;
+		$this->members = $m;		
 		
 		
 		/* Groups */
@@ -554,5 +542,3 @@ function bp_system_report_format_date( $timestamp ) {
 	
 	return $date . ' ' . strftime( "%R", $timestamp );
 }
-
-?>
