@@ -1,8 +1,11 @@
 <?php 
 
+// Exit if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 function bp_system_report_pseudo_cron() {
 	$cool = new BP_System_Report( time() ); 
-	$cool->record();
+	$cool->bp_system_report_record();
 }
 add_action( 'bp_system_report_pseudo_cron_hook', 'bp_system_report_pseudo_cron' );
 
@@ -72,6 +75,7 @@ function bp_system_report_admin_screen() {
 	    <h2><?php _e( 'System Report', 'bp-system-report' ) ?></h2>
 	
 		<form action="admin.php?page=bp-system-report/bp-system-report-functions.php" method="post">
+		
 			Compare
 			<select name="bpsr_b">
 				<?php foreach( $report_dates as $date ) : ?>
@@ -456,7 +460,7 @@ class BP_System_Report {
 		$this->date = time();
 	}
 	
-	function record() {
+	function bp_system_report_record() {
 		if ( !get_option( 'bp_system_report_log' ) )
 			$log = array();
 		else

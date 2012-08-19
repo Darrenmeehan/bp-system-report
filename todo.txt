@@ -4,17 +4,22 @@ NEXT RELEASE
 to get a working release
 
 -organize functions
--add comments explaining code
+-add comments explaining code http://codex.wordpress.org/Inline_Documentation
 -improve math
 -stop dividing by 0
 -fix db errors
+-check plugin complies with WP Coding Standards http://codex.wordpress.org/WordPress_Coding_Standards
+-security review, hopefully by someone else as well
 
-FUTURE RELEASES
+
+POSSIBLY, FUTURE RELEASES
+- need to look into use of $_POST
 -improve admin markup
 -improve display
 -add more stats
 -widgets/shortcode of information
 -email stats as different intervals
+-add support for more languages
 
 
 List of functions to help me keep track of this 

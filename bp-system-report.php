@@ -8,6 +8,9 @@ Author: Boone Gorges
 Author URI: http://teleogistic.net
 */
 
+// Exit if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 
 function bp_system_report_more_reccurences() {
 	return array(
@@ -39,6 +42,8 @@ function bp_system_report_admin_init() {
 }
 add_action( 'admin_init', 'bp_system_report_admin_init' );
 
+
+// This function add support for different locale
 function bp_system_report_locale_init () {
 	$plugin_dir = basename(dirname(__FILE__));
 	$locale = get_locale();
