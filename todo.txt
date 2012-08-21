@@ -2,8 +2,7 @@ TODO FILE
 
 NEXT RELEASE
 to get a working release
-
--organize functions
+-organize functions, get data, organize it, move math to a function, display it
 -add comments explaining code http://codex.wordpress.org/Inline_Documentation
 -improve math
 -stop dividing by 0

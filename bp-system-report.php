@@ -8,10 +8,6 @@ Author: Boone Gorges
 Author URI: http://teleogistic.net
 */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
-
-
 function bp_system_report_more_reccurences() {
 	return array(
 		'weekly' => array('interval' => 604800, 'display' => 'Once Weekly'), 

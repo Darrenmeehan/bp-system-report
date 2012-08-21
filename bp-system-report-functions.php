@@ -1,7 +1,4 @@
-<?php 
-
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+<?php
 
 function bp_system_report_pseudo_cron() {
 	$cool = new BP_System_Report( time() ); 
@@ -9,48 +6,62 @@ function bp_system_report_pseudo_cron() {
 }
 add_action( 'bp_system_report_pseudo_cron_hook', 'bp_system_report_pseudo_cron' );
 
-
 function bp_system_report_admin_add() {
 	add_submenu_page( 'options-general.php',__('System Report','bp-system-report'), __('System Report','bp-system-report'), 'manage_options', __FILE__, 'bp_system_report_admin_screen' ); 
 	add_action('admin_print_styles-','bp_system_report_css');
 }
 add_action( 'admin_menu', 'bp_system_report_admin_add', 70 );
 
-
 function bp_system_report_css() {
 	wp_enqueue_style( 'bp-system-report-css' );
 }
 
+function bp_system_report_get_info() {
+	
+	global $wpdb, $bp;
+	
+	// Total number of groups on the site
+	$group_total_count = groups_get_total_group_count();
+	
+	//Total number of active BuddyPress members on the site
+	$member_total_count = bp_total_member_count(); // possibly -  bp_get_total_member_count()
+	
+	// Total number of WordPress accounts
+	$account_total_count = bp_get_total_site_member_count();
 
-function bp_system_report_schedule() {	
-	
-	//print "<pre>";
-$crons = _get_cron_array();
-	echo "<div style='background: #fff;'>";
-	
-	echo "Now: " . time() . " Scheduled: ";
-	$sched = wp_next_scheduled( 'bp_system_report_pseudo_cron_hook' );
-	$until = (int)$sched - time();
-	echo " Until: " . $until;
-	echo "</div>";
-	
-//	echo wp_get_schedule( 'bp_system_report_pseudo_cron_hook' );
 }
-//add_action( 'wp_head', 'bp_system_report_schedule' );
+
 
 function bp_system_report_admin_screen() {
-	global $wpdb;
+
+/**
+
+	report_dates
+	a
+	bpsr_a
+	a_data
+	a_key
+	b
+	bpsr_b
+	b_key
+
+**/
 	
+	global $wpdb;
+
 	if ( !$report_dates = get_option( 'bp_system_report_log' ) )
 		$report_dates = array();
 	
 	$report_dates = array_reverse($report_dates);
 	
-	if ( !$a = isset($_POST['bpsr_a']) && $_POST['bpsr_a'] ) {
+
+	if ( !$a == isset($_POST['bpsr_a']) && $_POST['bpsr_a'] ) {
 		$a = time();
 		$a_data = new BP_System_Report( $a );
-	} else {
+	} 
+	else {
 		$a_key = 'bp_system_report_' . $a;
+		
 		if ( !$a_data = get_option( $a_key ) )
 			$a_data = "Error";
 	}
@@ -60,301 +71,14 @@ function bp_system_report_admin_screen() {
 	}
 	
 	$b_key = 'bp_system_report_' . $b;
+	
 	if ( !$b_data = get_option( $b_key ) )
 		$b_data = "Error";
-	
-	/* 
-	print "<pre>";
-	print_r($a_data);
-	print_r($b_data);
-	print "</pre>"; */
-	
-	?>
+		
+	// Moving admin output to this file	
+	require( dirname( __FILE__ ) . '/bp-system-report-admin.php' );
+	require( dirname( __FILE__ ) . '/bp-system-report-output.php' );
 
-	<div class="wrap">
-	    <h2><?php _e( 'System Report', 'bp-system-report' ) ?></h2>
-	
-		<form action="admin.php?page=bp-system-report/bp-system-report-functions.php" method="post">
-		
-			Compare
-			<select name="bpsr_b">
-				<?php foreach( $report_dates as $date ) : ?>
-					<option value="<?php echo $date ?>" <?php echo ($b == $date) ? 'selected="selected"' : '' ?>><?php echo bp_system_report_format_date( $date ); ?></option> 
-				<?php endforeach; ?>
-			</select>
-			with
-			<select name="bpsr_a">
-					<option value="">Now</option>
-				<?php foreach( $report_dates as $date ) : ?>
-					<option value="<?php echo $date ?>" <?php echo ($a == $date) ? 'selected="selected"' : '' ?>><?php echo bp_system_report_format_date( $date ); ?></option> 
-				<?php endforeach; ?>
-			</select>
-			
-			<input name="Submit" type="submit" value="<?php esc_attr_e('Go'); ?>" />
-			
-		</form>
-		
-		<table id="bp-sr-table" cellspacing=0>
-		
-		<thead>
-			<tr>
-				<th scope="col"></th>
-				<th scope="col"></th>
-				<th scope="col"><?php echo bp_system_report_format_date( $b ); ?></th>
-				<th scope="col"><?php echo (!$_POST['bpsr_a']) ? "Now" :  bp_system_report_format_date( $a ) ?></th>
-				<th scope="col"><?php _e( 'Change', 'bp-system-report') ?></th>
-			</tr>
-			
-			<tr class="bp-sr-type-label">
-			
-				<th scope="row" colspan=5>Members</th>
-			
-			</tr>
-			
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">Total</th>
-				
-				<td><?php echo $b_data->members['total']; ?></td>
-				<td><?php echo $a_data->members['total']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->members['total'], $b_data->members['total'] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"></th>
-				<th scope="row"># active</th>
-				
-				<td><?php echo $b_data->members['total_active']; ?></td>
-				<td><?php echo $a_data->members['total_active']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->members['total_active'], $b_data->members['total_active'] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">% active</th>
-				
-				<td><?php echo $b_data->members['percent_active']; ?></td>
-				<td><?php echo $a_data->members['percent_active']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->members['percent_active'], $b_data->members['percent_active'] ) ?></td>
-			</tr>
-
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">Total friendships</th>
-				
-				<td><?php echo $b_data->members['friendships']; ?></td>
-				<td><?php echo $a_data->members['friendships']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->members['friendships'], $b_data->members['friendships'] ) ?></td>
-			</tr>
-	
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">Avg friendships per member</th>
-				
-				<td><?php echo round( $b_data->members['average_friendships'], 2 ); ?></td>
-				<td><?php echo round( $a_data->members['average_friendships'], 2 ); ?></td>
-				<td><?php bp_system_report_compare( $a_data->members['average_friendships'], $b_data->members['average_friendships'] ) ?></td>
-			</tr>
-			
-			<tr class="bp-sr-type-label">
-			
-				<th scope="row" colspan=5>Groups</th>
-			
-			</tr>
-			
-			<tr>
-				<th scope="row">all groups</th>
-				<th scope="row">Total</th>
-				
-				<td><?php echo $b_data->groups['total']; ?></td>
-				<td><?php echo $a_data->groups['total']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->groups['total'], $b_data->groups['total'] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row">all groups</th>
-				<th scope="row"># active</th>
-				
-				
-				<?php 	$a_types = $a_data->groups['active'];
-						
-						$a_active = 0;
-						foreach( $a_types as $t ) {
-							$a_active += (int)$t;
-						}
-						
-						$b_types = $b_data->groups['active'];
-						
-						$b_active = 0;
-						foreach( $b_types as $t ) {
-							$b_active += (int)$t;
-						}
-				?>
-				
-				<td><?php echo $b_active; ?></td>
-				<td><?php echo $a_active; ?></td>
-				<td><?php bp_system_report_compare( $a_active, $b_active ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row">all groups</th>
-				<th scope="row">% active</th>
-				
-				<?php	
-						$a_p = bp_system_report_percentage( $a_active/$a_data->groups['total'] );
-						$b_p = bp_system_report_percentage( $b_active/$b_data->groups['total'] );
-						
-				?>
-				<td><?php echo $b_p; ?></td>
-				<td><?php echo $a_p; ?></td>
-				<td><?php bp_system_report_compare( $a_p, $b_p ) ?></td>
-			</tr>
-
-					
-			<tr>
-				<th scope="row"><?php _e( "all groups", 'bp-system-report' ) ?></th>
-				<th scope="row">total group memberships</th>
-				
-				
-				<?php 	$a_types = $a_data->groups['members'];
-						
-						$a_members = 0;
-						foreach( $a_types as $t ) {
-							$a_members += (int)$t;
-						}
-						
-						$b_types = $b_data->groups['members'];
-						
-						$b_members = 0;
-						foreach( $b_types as $t ) {
-							$b_members += (int)$t;
-						}
-				?>
-				
-				<td><?php echo $b_members ?></td>
-				<td><?php echo $a_members ?></td>
-				<td><?php bp_system_report_compare( $a_members, $b_members ) ?></td>
-			</tr>
-			
-			<tr>
-				<th scope="row"><?php _e( "all groups", 'bp-system-report' ) ?></th>
-				<th scope="row">average group membership</th>
-				
-				
-				<?php	
-						$a_p = $a_members/$a_data->groups['total'];
-						$b_p = $b_members/$b_data->groups['total'];
-						
-				?>
-				<td><?php echo round( $b_p, 2 ); ?></td>
-				<td><?php echo round( $a_p, 2 ); ?></td>
-				<td><?php bp_system_report_compare( $a_p, $b_p ) ?></td>
-			</tr>
-		
-		
-			<?php $type_array = array( 'public', 'private', 'hidden' ); ?>
-			
-			<?php foreach( $type_array as $type ) : ?>
-			<tr class="padder"></tr>
-		
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row">Total</th>
-				
-				<td><?php echo $b_data->groups['types'][$type]; ?></td>
-				<td><?php echo $a_data->groups['types'][$type]; ?></td>
-				<td><?php bp_system_report_compare( $a_data->groups['types'][$type], $b_data->groups['types'][$type] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row">as % of total groups</th>
-				
-				<td><?php echo bp_system_report_percentage( $b_data->groups['types'][$type]/$b_data->groups['total'] ); ?></td>
-				<td><?php echo bp_system_report_percentage( $a_data->groups['types'][$type]/$a_data->groups['total'] ); ?></td>
-				<td><?php bp_system_report_compare( bp_system_report_percentage( $a_data->groups['types'][$type]/$a_data->groups['total'] ), bp_system_report_percentage( $b_data->groups['types'][$type]/$b_data->groups['total'] ) ) ?></td>
-			</tr>
-			
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row"># active</th>
-				
-				<td><?php echo $b_data->groups['active'][$type] ?></td>
-				<td><?php echo $a_data->groups['active'][$type] ?></td>
-				<td><?php bp_system_report_compare( $a_data->groups['active'][$type], $b_data->groups['active'][$type] ); ?></td>
-			</tr>
-			
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row">% active</th>
-				
-				<td><?php echo bp_system_report_percentage( $b_data->groups['active'][$type], $b_data->groups['types'][$type] ); ?></td>
-				<td><?php echo bp_system_report_percentage( $a_data->groups['active'][$type] / $a_data->groups['types'][$type] ); ?></td>
-				<td><?php bp_system_report_compare( bp_system_report_percentage( $a_data->groups['active'][$type] / $a_data->groups['types'][$type] ), bp_system_report_percentage( $b_data->groups['active'][$type] / $b_data->groups['types'][$type] ) ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row">total group memberships</th>
-				
-				<td><?php echo $b_data->groups['members'][$type]; ?></td>
-				<td><?php echo $a_data->groups['members'][$type]; ?></td>
-				<td><?php bp_system_report_compare( $a_data->groups['members'][$type], $b_data->groups['members'][$type] ) ?></td>
-			</tr>
-			
-			<tr>
-				<th scope="row"><?php _e( "$type groups", 'bp-system-report' ) ?></th>
-				<th scope="row">average group membership</th>
-				
-				<td><?php echo round( $b_data->groups['members'][$type] / $b_data->groups['types'][$type], 2 ) ?></td>
-				<td><?php echo round ( $a_data->groups['members'][$type] / $a_data->groups['types'][$type], 2 ) ?></td>
-				<td><?php bp_system_report_compare( $a_data->groups['members'][$type] / $a_data->groups['types'][$type], $b_data->groups['members'][$type] / $b_data->groups['types'][$type] ) ?></td>
-			</tr>
-			<?php endforeach; ?>	
-		
-			
-				
-		
-	
-			<tr class="bp-sr-type-label">
-			
-				<th scope="row" colspan=5>Blogs</th>
-			
-			</tr>
-			
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">Total</th>
-				
-				<td><?php echo $b_data->blogs['total']; ?></td>
-				<td><?php echo $a_data->blogs['total']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->blogs['total'], $b_data->blogs['total'] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"></th>
-				<th scope="row"># active</th>
-				
-				<td><?php echo $b_data->blogs['total_active']; ?></td>
-				<td><?php echo $a_data->blogs['total_active']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->blogs['total_active'], $b_data->blogs['total_active'] ) ?></td>
-			</tr>
-		
-			<tr>
-				<th scope="row"></th>
-				<th scope="row">% active</th>
-				
-				<td><?php echo $b_data->blogs['percent_active']; ?></td>
-				<td><?php echo $a_data->blogs['percent_active']; ?></td>
-				<td><?php bp_system_report_compare( $a_data->blogs['percent_active'], $b_data->blogs['percent_active'] ) ?></td>
-			</tr>
-			
-		</thead>
-
-		</table>
-
-	</div>
-	<?php
 }
 
 class BP_System_Report {
@@ -371,6 +95,7 @@ class BP_System_Report {
 			$last_report = array_pop( $report_dates );
 		
 		$counter = 0;
+		$divideby = 0;
 				
 		/* Members */
 		$members_array = bp_core_get_users( array( 'per_page' => 10000 ) );
@@ -444,7 +169,7 @@ class BP_System_Report {
 		$m['total'] = count($blogs);
 		
 		/* Active in last week */
-		$counter = 0;
+		$counter = 1;
 		
 		foreach( $blogs as $blog ) {
 			$last = strtotime($blog->last_activity);
@@ -453,7 +178,12 @@ class BP_System_Report {
 				$counter++;
 		}
 		$m['total_active'] = $counter;
-		$m['percent_active'] = bp_system_report_percentage($counter/$m['total']);
+		
+		if ( $counter && $m['total'] = 0) {
+		$divideby = 1;
+		}
+		
+		$m['percent_active'] = bp_system_report_percentage($divideby);
 				
 		$this->blogs = $m;
 		
